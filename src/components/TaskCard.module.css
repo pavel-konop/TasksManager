@@ -1,0 +1,80 @@
+.card {
+  background-color: var(--card);
+  border-radius: var(--radius);
+  border-left: 4px solid var(--border); 
+  padding: 0;
+  margin-bottom: 0.75rem;
+  cursor: grab;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.cardContent {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card[data-status="to-do"] { border-color: var(--status-todo-fg); }
+.card[data-status="in-progress"] { border-color: var(--status-inprogress-fg); }
+.card[data-status="in-review"] { border-color: var(--status-inreview-fg); }
+.card[data-status="done"] { border-color: var(--status-done-fg); }
+
+
+.card:hover {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  transform: translateY(-2px);
+}
+
+.card:active {
+  cursor: grabbing;
+}
+
+.taskName {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--card-foreground);
+}
+
+.details {
+  display: flex;
+}
+
+.priority {
+  width: fit-content;
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.priority[data-priority="high"] { background-color: #fee2e2; color: #dc2626; }
+.priority[data-priority="medium"] { background-color: #ffedd5; color: #f97316; }
+.priority[data-priority="low"] { background-color: #dbeafe; color: #3b82f6; }
+
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+  margin-top: 0.5rem;
+}
+
+.dueDate {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.assigneeAvatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--background);
+}

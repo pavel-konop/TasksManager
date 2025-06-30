@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap');
+
+/* Basic CSS Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --font-sans: 'Figtree', sans-serif;
+
+  /* FINAL PALETTE: "Vibrant Productivity" */
+  --background: #f7f9fc;    /* Very Light Blue-Gray */
+  --foreground: #1e293b;    /* Dark Slate */
+
+  --card: #ffffff;
+  --card-foreground: #1e293b;
+
+  --popover: #ffffff;
+  --popover-foreground: #1e293b;
+
+  --primary: #14b8a6; /* Teal-500 */
+  --primary-foreground: #ffffff;
+
+  --secondary: #f1f5f9;
+  --secondary-foreground: #1e293b;
+
+  --muted: #e2e8f0;
+  --muted-foreground: #64748b;
+
+  --accent: #f1f5f9;
+  --accent-foreground: #1e293b;
+  
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #14b8a6; /* Teal for focus rings */
+
+  --radius: 0.5rem;
+
+  /* Status-specific Colors */
+  --status-todo-bg: #e2e8f0;
+  --status-todo-fg: #475569;
+  --status-inprogress-bg: #dbeafe;
+  --status-inprogress-fg: #2563eb;
+  --status-inreview-bg: #ffedd5;
+  --status-inreview-fg: #f97316;
+  --status-done-bg: #dcfce7;
+  --status-done-fg: #22c55e;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

@@ -1,0 +1,86 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, opacity 0.2s;
+  user-select: none;
+  height: 2.25rem; /* 36px */
+  padding: 0 1rem;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.button:disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Variants */
+.default {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+}
+.default:hover {
+  opacity: 0.9;
+}
+
+.destructive {
+  background-color: var(--destructive);
+  color: var(--destructive-foreground);
+}
+.destructive:hover {
+  opacity: 0.9;
+}
+
+.outline {
+  border-color: var(--input);
+  background-color: var(--background);
+}
+.outline:hover {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.ghost {
+  background-color: transparent;
+  border-color: transparent;
+}
+.ghost:hover {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+/* Destructive Ghost Variant */
+.destructive-ghost {
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--destructive);
+}
+.destructive-ghost:hover {
+  background-color: #fee2e2; /* light red */
+}
+
+
+/* Sizes */
+/* Default size is now set in .button itself */
+
+.small {
+  height: 2rem; /* 32px */
+  padding: 0 0.75rem;
+  font-size: 0.8rem;
+}
+
+.large {
+  height: 2.75rem; /* 44px */
+  padding: 0 1.5rem;
+}

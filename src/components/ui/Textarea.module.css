@@ -1,0 +1,19 @@
+.textarea {
+  display: flex;
+  min-height: 80px;
+  width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--input);
+  background-color: var(--background);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.textarea:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -1px;
+}
+
+.textarea::placeholder {
+  color: var(--muted-foreground);
+}

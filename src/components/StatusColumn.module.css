@@ -1,0 +1,67 @@
+.column {
+  flex: 1;
+  min-width: 280px;
+  max-width: 320px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 3px solid;
+}
+
+.header[data-status="To Do"] {
+  border-color: var(--status-todo-fg);
+}
+.header[data-status="In Progress"] {
+  border-color: var(--status-inprogress-fg);
+}
+.header[data-status="In Review"] {
+  border-color: var(--status-inreview-fg);
+}
+.header[data-status="Done"] {
+  border-color: var(--status-done-fg);
+}
+
+.title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.taskCount {
+  font-size: 0.875rem;
+  font-weight: 500;
+  background-color: var(--muted);
+  color: var(--muted-foreground);
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.tasks {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 0.75rem 0.5rem;
+  background-color: var(--secondary);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  margin: 0.5rem;
+}
