@@ -15,6 +15,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Analytics from './pages/Analytics';
+import Terms from './pages/Terms'; // The new terms page
 
 function App() {
   return (
@@ -24,8 +25,9 @@ function App() {
           {/* Public routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/terms" element={<Terms />} />
 
-          {/* Protected routes are nested inside the ProtectedRoute */}
+          {/* Protected routes are nested inside the ProtectedRoute wrapper */}
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
               <Route index element={<Dashboard />} />
@@ -34,7 +36,7 @@ function App() {
             </Route>
           </Route>
 
-          {/* Fallback for any other path */}
+          {/* Fallback for any other path, redirecting to the main page */}
           <Route path="*" element={<Navigate to="/" />} />
 
         </Routes>
