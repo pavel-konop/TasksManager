@@ -1,8 +1,26 @@
 import React from 'react';
 import { format } from 'date-fns';
+import { FiArrowUp, FiArrowDown } from 'react-icons/fi';
 import styles from './ListView.module.css';
+import { cn } from '../lib/utils';
 
-const ListView = ({ tasks, onEditTask }) => {
+const SortableHeader = ({ children, sortKey, sortConfig, handleSort }) => {
+  const isSorted = sortConfig.key === sortKey;
+  const icon = isSorted ? (sortConfig.direction === 'asc' ? <FiArrowUp /> : <FiArrowDown />) : null;
+  
+  return (
+    <th onClick={() => handleSort(sortKey)}>
+      <div className={styles.headerCell}>
+        {children}
+        <span className={cn(styles.sortIcon, isSorted && styles.visible)}>
+          {icon}
+        </span>
+      </div>
+    </th>
+  );
+};
+
+const ListView = ({ tasks, onEditTask, sortConfig, handleSort }) => {
   if (tasks.length === 0) {
     return <div className={styles.emptyState}>No tasks match the current filters.</div>;
   }
@@ -12,11 +30,11 @@ const ListView = ({ tasks, onEditTask }) => {
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>Task Name</th>
-            <th>Status</th>
-            <th>Priority</th>
-            <th>Due Date</th>
-            <th>Assignee</th>
+            <SortableHeader sortKey="name" sortConfig={sortConfig} handleSort={handleSort}>Task Name</SortableHeader>
+            <SortableHeader sortKey="status" sortConfig={sortConfig} handleSort={handleSort}>Status</SortableHeader>
+            <SortableHeader sortKey="priority" sortConfig={sortConfig} handleSort={handleSort}>Priority</SortableHeader>
+            <SortableHeader sortKey="dueDate" sortConfig={sortConfig} handleSort={handleSort}>Due Date</SortableHeader>
+            <SortableHeader sortKey="assignee" sortConfig={sortConfig} handleSort={handleSort}>Assignee</SortableHeader>
           </tr>
         </thead>
         <tbody>
@@ -29,10 +47,7 @@ const ListView = ({ tasks, onEditTask }) => {
                 </span>
               </td>
               <td data-label="Priority">{task.priority}</td>
-              <td data-label="Due Date">
-                {/* CORRECTED: No longer need new Date() */}
-                {task.dueDate ? format(task.dueDate, 'MMM d, yyyy') : 'N/A'}
-              </td>
+              <td data-label="Due Date">{task.dueDate ? format(task.dueDate, 'MMM d, yyyy') : 'N/A'}</td>
               <td data-label="Assignee">
                 {task.assignee ? (
                   <div className={styles.assignee}>

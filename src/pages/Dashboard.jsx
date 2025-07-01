@@ -9,9 +9,10 @@ import StatusColumn from '../components/StatusColumn';
 import TaskDialog from '../components/TaskDialog';
 import TaskCard from '../components/TaskCard';
 import FilterControls from '../components/FilterControls';
-import ListView from '../components/ListView'; // Import the new component
+import ListView from '../components/ListView';
 import { Button } from '../components/ui/Button';
 import { FiPlus, FiGrid, FiList } from 'react-icons/fi';
+import confetti from 'canvas-confetti';
 import styles from './Dashboard.module.css';
 
 const Dashboard = () => {
@@ -20,36 +21,73 @@ const Dashboard = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [activeTask, setActiveTask] = useState(null);
 
+  const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
+
   const { searchTerm, assigneeFilter, priorityFilter, statusFilter, viewMode, setViewMode } = useFilterStore();
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
-  const filteredTasks = useMemo(() => {
-    return tasks.filter(task => {
+  const processedTasks = useMemo(() => {
+    let sortableTasks = [...tasks];
+
+    sortableTasks = sortableTasks.filter(task => {
       const searchMatch = task.name.toLowerCase().includes(searchTerm.toLowerCase());
       const assigneeMatch = assigneeFilter ? task.assignee?.uid === assigneeFilter : true;
       const priorityMatch = priorityFilter ? task.priority === priorityFilter : true;
       const statusMatch = statusFilter ? task.status === statusFilter : true;
       return searchMatch && assigneeMatch && priorityMatch && statusMatch;
     });
-  }, [tasks, searchTerm, assigneeFilter, priorityFilter, statusFilter]);
 
-  const getTasksByStatus = (status) => filteredTasks.filter(task => task.status === status);
+    if (sortConfig.key) {
+      const priorityOrder = { 'High': 3, 'Medium': 2, 'Low': 1 };
+      sortableTasks.sort((a, b) => {
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+        
+        if (sortConfig.key === 'assignee') {
+          aValue = a.assignee?.name || '';
+          bValue = b.assignee?.name || '';
+        } else if (sortConfig.key === 'priority') {
+          aValue = priorityOrder[a.priority] || 0;
+          bValue = priorityOrder[b.priority] || 0;
+        }
+
+        if (aValue === null) return 1;
+        if (bValue === null) return -1;
+        
+        if (aValue < bValue) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableTasks;
+  }, [tasks, searchTerm, assigneeFilter, priorityFilter, statusFilter, sortConfig]);
+
+  const getTasksByStatus = (status) => processedTasks.filter(task => task.status === status);
+
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
 
   const handleAddTask = () => {
     setSelectedTask(null);
     setIsDialogOpen(true);
   };
-
   const handleEditTask = (task) => {
     setSelectedTask(task);
     setIsDialogOpen(true);
   };
-
   const handleDragStart = (event) => {
     setActiveTask(tasks.find(t => t.id === event.active.id));
   };
-
   const handleDragEnd = async (event) => {
     setActiveTask(null);
     const { active, over } = event;
@@ -61,12 +99,13 @@ const Dashboard = () => {
     if (currentTask && currentTask.status !== newStatus) {
       const taskRef = doc(db, 'tasks', taskId);
       await updateDoc(taskRef, { status: newStatus });
+      if (newStatus === 'Done') {
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+      }
     }
   };
 
-  if (loading) {
-    return <div className={styles.dashboard}><p>Loading tasks...</p></div>;
-  }
+  if (loading) return <div className={styles.dashboard}><p>Loading tasks...</p></div>;
 
   return (
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
@@ -80,8 +119,7 @@ const Dashboard = () => {
               <Button variant={viewMode === 'list' ? 'default' : 'ghost'} onClick={() => setViewMode('list')} size="small"><FiList /></Button>
             </div>
             <Button onClick={handleAddTask}>
-              <FiPlus style={{ marginRight: '0.5rem' }} />
-              Create Task
+              <FiPlus style={{ marginRight: '0.5rem' }} /> Create Task
             </Button>
           </div>
         </header>
@@ -89,18 +127,22 @@ const Dashboard = () => {
         {viewMode === 'board' ? (
           <div className={styles.board}>
             {TASK_STATUSES.map(status => (
-              <StatusColumn
-                key={status}
-                status={status}
-                tasks={getTasksByStatus(status)}
-                onEditTask={handleEditTask}
-              />
+                <StatusColumn
+                  key={status}
+                  status={status}
+                  tasks={getTasksByStatus(status)}
+                  onEditTask={handleEditTask}
+                />
             ))}
           </div>
         ) : (
-          <ListView tasks={filteredTasks} onEditTask={handleEditTask} />
+          <ListView 
+            tasks={processedTasks} 
+            onEditTask={handleEditTask} 
+            sortConfig={sortConfig}
+            handleSort={handleSort}
+          />
         )}
-
       </div>
       <DragOverlay>{activeTask ? <TaskCard task={activeTask} /> : null}</DragOverlay>
       <TaskDialog isOpen={isDialogOpen} onOpenChange={setIsDialogOpen} task={selectedTask} />

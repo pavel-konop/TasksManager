@@ -23,6 +23,28 @@
   text-transform: uppercase;
   color: var(--muted-foreground);
   background-color: var(--secondary);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.table th:hover {
+  background-color: var(--muted);
+}
+
+.headerCell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sortIcon {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.sortIcon.visible {
+  opacity: 1;
 }
 
 .table tbody tr {
