@@ -1,15 +1,17 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { DndContext, PointerSensor, useSensor, useSensors, DragOverlay } from '@dnd-kit/core';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { TASK_STATUSES } from '../constants';
 import { useTasks } from '../hooks/useTasks';
 import useFilterStore from '../store/useFilterStore';
+import { useAuth } from '../hooks/useAuth';
 import StatusColumn from '../components/StatusColumn';
 import TaskDialog from '../components/TaskDialog';
 import TaskCard from '../components/TaskCard';
 import FilterControls from '../components/FilterControls';
 import ListView from '../components/ListView';
+import Tour from '../components/Tour';
 import { Button } from '../components/ui/Button';
 import { FiPlus, FiGrid, FiList } from 'react-icons/fi';
 import confetti from 'canvas-confetti';
@@ -17,13 +19,27 @@ import styles from './Dashboard.module.css';
 
 const Dashboard = () => {
   const { tasks, loading } = useTasks();
+  const { user } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [activeTask, setActiveTask] = useState(null);
+  const [runTour, setRunTour] = useState(false);
 
   const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
 
-  const { searchTerm, assigneeFilter, priorityFilter, statusFilter, viewMode, setViewMode } = useFilterStore();
+  const { searchTerm, assigneeFilter, priorityFilter, statusFilter, viewMode, setViewMode, isTourOpen, setTourOpen } = useFilterStore();
+  
+  useEffect(() => {
+    if (!user || loading) return;
+    const checkTutorialStatus = async () => {
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists() && userDoc.data().hasCompletedTutorial === false) {
+        setTourOpen(true);
+      }
+    };
+    checkTutorialStatus();
+  }, [user, loading, setTourOpen]);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
@@ -64,6 +80,7 @@ const Dashboard = () => {
         return 0;
       });
     }
+
     return sortableTasks;
   }, [tasks, searchTerm, assigneeFilter, priorityFilter, statusFilter, sortConfig]);
 
@@ -81,13 +98,16 @@ const Dashboard = () => {
     setSelectedTask(null);
     setIsDialogOpen(true);
   };
+
   const handleEditTask = (task) => {
     setSelectedTask(task);
     setIsDialogOpen(true);
   };
+
   const handleDragStart = (event) => {
     setActiveTask(tasks.find(t => t.id === event.active.id));
   };
+
   const handleDragEnd = async (event) => {
     setActiveTask(null);
     const { active, over } = event;
@@ -95,10 +115,12 @@ const Dashboard = () => {
     const taskId = active.id;
     const currentTask = tasks.find(t => t.id === taskId);
     let newStatus = over.id;
-    if (over.data.current?.sortable) newStatus = over.data.current.sortable.containerId;
+    if (over.data.current?.sortable) {
+      newStatus = over.data.current.sortable.containerId;
+    }
     if (currentTask && currentTask.status !== newStatus) {
       const taskRef = doc(db, 'tasks', taskId);
-      await updateDoc(taskRef, { status: newStatus });
+      await updateDoc(taskRef, { status: aewStatus });
       if (newStatus === 'Done') {
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
       }
@@ -108,45 +130,44 @@ const Dashboard = () => {
   if (loading) return <div className={styles.dashboard}><p>Loading tasks...</p></div>;
 
   return (
-    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className={styles.dashboard}>
-        <header className={styles.header}>
-          <h1 className={styles.title}>Dashboard</h1>
-          <div className={styles.actions}>
-            <FilterControls />
-            <div className={styles.viewSwitcher}>
-              <Button variant={viewMode === 'board' ? 'default' : 'ghost'} onClick={() => setViewMode('board')} size="small"><FiGrid /></Button>
-              <Button variant={viewMode === 'list' ? 'default' : 'ghost'} onClick={() => setViewMode('list')} size="small"><FiList /></Button>
+    <>
+      <Tour/>
+      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <div className={styles.dashboard}>
+          <header className={styles.header}>
+            <h1 className={styles.title}>Dashboard</h1>
+            <div id="tour-step-3" className={styles.actions}>
+              <FilterControls />
+              <div id="tour-step-4" className={styles.viewSwitcher}>
+                <Button variant={viewMode === 'board' ? 'default' : 'ghost'} onClick={() => setViewMode('board')} size="small"><FiGrid /></Button>
+                <Button variant={viewMode === 'list' ? 'default' : 'ghost'} onClick={() => setViewMode('list')} size="small"><FiList /></Button>
+              </div>
+              <Button onClick={handleAddTask}>
+                <FiPlus style={{ marginRight: '0.5rem' }} /> Create Task
+              </Button>
             </div>
-            <Button onClick={handleAddTask}>
-              <FiPlus style={{ marginRight: '0.5rem' }} /> Create Task
-            </Button>
-          </div>
-        </header>
-
-        {viewMode === 'board' ? (
-          <div className={styles.board}>
-            {TASK_STATUSES.map(status => (
-                <StatusColumn
-                  key={status}
-                  status={status}
-                  tasks={getTasksByStatus(status)}
-                  onEditTask={handleEditTask}
-                />
-            ))}
-          </div>
-        ) : (
-          <ListView 
-            tasks={processedTasks} 
-            onEditTask={handleEditTask} 
-            sortConfig={sortConfig}
-            handleSort={handleSort}
-          />
-        )}
-      </div>
-      <DragOverlay>{activeTask ? <TaskCard task={activeTask} /> : null}</DragOverlay>
-      <TaskDialog isOpen={isDialogOpen} onOpenChange={setIsDialogOpen} task={selectedTask} />
-    </DndContext>
+          </header>
+          {viewMode === 'board' ? (
+            <div id="tour-step-1" className={styles.board}>
+              {TASK_STATUSES.map(status => (
+                <div id={status === 'To Do' ? 'tour-step-2' : undefined} key={status}>
+                  <StatusColumn status={status} tasks={getTasksByStatus(status)} onEditTask={handleEditTask} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <ListView 
+              tasks={processedTasks} 
+              onEditTask={handleEditTask} 
+              sortConfig={sortConfig}
+              handleSort={handleSort}
+            />
+          )}
+        </div>
+        <DragOverlay>{activeTask ? <TaskCard task={activeTask} /> : null}</DragOverlay>
+        <TaskDialog isOpen={isDialogOpen} onOpenChange={setIsDialogOpen} task={selectedTask}/>
+      </DndContext>
+    </>
   );
 };
 
