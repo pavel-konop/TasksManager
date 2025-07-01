@@ -2,7 +2,8 @@ import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { FiClock, FiArrowUp, FiArrowRight, FiArrowDown } from 'react-icons/fi';
-import { format } from 'date-fns'; // Import date-fns
+import { format } from 'date-fns';
+import { cn } from '../lib/utils'; // Import the cn utility
 import styles from './TaskCard.module.css';
 
 const priorityIcons = {
@@ -13,6 +14,7 @@ const priorityIcons = {
 
 const TaskCard = ({ task, onEdit }) => {
   const { name, priority, dueDate, assignee, status } = task;
+  const isDone = status === 'Done'; // Check if the task is done
 
   const {
     attributes,
@@ -35,12 +37,14 @@ const TaskCard = ({ task, onEdit }) => {
       style={style}
       {...attributes}
       {...listeners}
-      className={styles.card}
+      // Apply a "done" class to the entire card
+      className={cn(styles.card, isDone && styles.doneCard)}
       data-status={status.replace(/\s+/g, '-').toLowerCase()}
       onClick={() => onEdit(task)}
     >
       <div className={styles.cardContent}>
-        <h3 className={styles.taskName}>{name}</h3>
+        {/* Apply a "done" class to the task name for strikethrough */}
+        <h3 className={cn(styles.taskName, isDone && styles.doneText)}>{name}</h3>
         
         <div className={styles.details}>
           <div className={styles.priority} data-priority={priority?.toLowerCase()}>
@@ -53,7 +57,6 @@ const TaskCard = ({ task, onEdit }) => {
           {dueDate && (
             <div className={styles.dueDate}>
               <FiClock />
-              {/* CORRECTED: Format the date object */}
               <span>{format(dueDate, 'MMM d')}</span>
             </div>
           )}

@@ -108,34 +108,24 @@ const Dashboard = () => {
     setActiveTask(tasks.find(t => t.id === event.active.id));
   };
 
+  // In Dashboard.jsx, find the handleDragEnd function and replace it with this cleaned-up version.
+// Also remove `import confetti from 'canvas-confetti';` from the top of the file.
+
   const handleDragEnd = async (event) => {
     setActiveTask(null);
     const { active, over } = event;
     if (!over) return;
-
     const taskId = active.id;
     const currentTask = tasks.find(t => t.id === taskId);
-    
     let newStatus = over.id;
     if (over.data.current?.sortable) {
       newStatus = over.data.current.sortable.containerId;
     }
-    
-    // Check if the status is actually changing and is a valid status
     if (currentTask && currentTask.status !== newStatus && TASK_STATUSES.includes(newStatus)) {
       try {
         const taskRef = doc(db, 'tasks', taskId);
         await updateDoc(taskRef, { status: newStatus });
-        
-        // If task is moved to "Done", celebrate!
-        if (newStatus === 'Done') {
-          confetti({
-            particleCount: 150,
-            spread: 70,
-            origin: { y: 0.6 },
-            zIndex: 10001 // Ensure it's above the tour spotlight
-          });
-        }
+        // The confetti logic has been removed.
       } catch (error) {
         console.error("Error updating task status:", error);
       }

@@ -78,3 +78,12 @@
   border-radius: 50%;
   border: 2px solid var(--background);
 }
+
+.doneCard {
+  opacity: 0.7;
+}
+
+.doneText {
+  text-decoration: line-through;
+  color: var(--muted-foreground);
+}
