@@ -20,7 +20,7 @@ const Login = () => {
       await signInWithEmailAndPassword(auth, email, password);
       navigate('/');
     } catch (err) {
-      setError('Failed to log in. Please check your credentials.');
+      setError('Invalid email or password. Please try again.');
     }
   };
 
@@ -59,9 +59,7 @@ const Login = () => {
         </form>
         <p className={styles.linkText}>
           Don't have an account?{' '}
-          <Link to="/register" className={styles.link}>
-            Register
-          </Link>
+          <Link to="/register" className={styles.link}>Register</Link>
         </p>
       </div>
     </div>

@@ -1,10 +1,5 @@
-import React from 'react';
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from 'react-router-dom';
+import React, { Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth';
 
 // Components & Pages
@@ -12,34 +7,44 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import Profile from './pages/Profile';
-import Analytics from './pages/Analytics';
-import Terms from './pages/Terms'; // The new terms page
+import Terms from './pages/Terms';
+
+// Lazy load the main pages for performance
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Profile = React.lazy(() => import('./pages/Profile'));     // <-- Corrected path
+const Analytics = React.lazy(() => import('./pages/Analytics')); // <-- Corrected path
+
+// A simple loader component to show while pages are loading
+const FullPageLoader = () => (
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
+    Loading...
+  </div>
+);
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/terms" element={<Terms />} />
+        <Suspense fallback={<FullPageLoader />}>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/terms" element={<Terms />} />
 
-          {/* Protected routes are nested inside the ProtectedRoute wrapper */}
-          <Route element={<ProtectedRoute />}>
-            <Route element={<Layout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="analytics" element={<Analytics />} />
+            {/* Protected routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route element={<Layout />}>
+                <Route index element={<Dashboard />} />
+                <Route path="profile" element={<Profile />} />
+                <Route path="analytics" element={<Analytics />} />
+              </Route>
             </Route>
-          </Route>
 
-          {/* Fallback for any other path, redirecting to the main page */}
-          <Route path="*" element={<Navigate to="/" />} />
-
-        </Routes>
+            {/* Fallback route */}
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </Suspense>
       </AuthProvider>
     </Router>
   );

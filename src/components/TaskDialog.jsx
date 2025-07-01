@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { db, auth } from '../lib/firebase';
 import { doc, addDoc, updateDoc, collection, serverTimestamp, getDocs, deleteDoc } from 'firebase/firestore';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from './ui/Dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/AlertDialog';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Textarea } from './ui/Textarea';
@@ -14,7 +15,7 @@ import Comments from './Comments';
 import styles from './TaskDialog.module.css';
 
 const taskSchema = z.object({
-  name: z.string().min(3, 'Name must be at least 3 characters'),
+  name: z.string().min(3, 'Name must be at least 3 characters long.'),
   description: z.string().optional(),
   status: z.string(),
   priority: z.string(),
@@ -61,9 +62,7 @@ const TaskDialog = ({ isOpen, onOpenChange, task }) => {
   }, [isOpen, task, isEditMode, reset]);
 
   const handleDelete = async () => {
-    if (!isEditMode || !window.confirm("Are you sure you want to delete this task? This action cannot be undone.")) {
-      return;
-    }
+    if (!isEditMode) return;
     try {
       await deleteDoc(doc(db, 'tasks', task.id));
       onOpenChange(false);
@@ -105,7 +104,6 @@ const TaskDialog = ({ isOpen, onOpenChange, task }) => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{isEditMode ? 'Edit Task' : 'Create New Task'}</DialogTitle>
-          {/* ADD THIS DIALOG DESCRIPTION BACK IN */}
           <DialogDescription>
             {isEditMode ? "Make changes to your task here. Click save when you're done." : "Add a new task to your board. Fill in the details below."}
           </DialogDescription>
@@ -155,9 +153,25 @@ const TaskDialog = ({ isOpen, onOpenChange, task }) => {
 
             <DialogFooter className={styles.footer}>
               {isEditMode && auth.currentUser?.uid === task.creatorUid && (
-                  <Button type="button" variant="destructive-ghost" onClick={handleDelete} className={styles.deleteButton}>
-                    Delete
-                  </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button type="button" variant="destructive-ghost" className={styles.deleteButton}>Delete</Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete this task and all of its comments.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete} className={styles.destructiveAction}>
+                        Yes, delete task
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               )}
               <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
               <Button type="submit" disabled={isSubmitting}>

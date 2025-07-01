@@ -20,8 +20,8 @@ const Register = () => {
     e.preventDefault();
     setError('');
     if (!agreed) {
-        setError('You must agree to the terms and conditions.');
-        return;
+      setError('You must agree to the terms and conditions.');
+      return;
     }
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -39,7 +39,20 @@ const Register = () => {
 
       navigate('/');
     } catch (err) {
-      setError(err.message);
+      switch (err.code) {
+        case 'auth/weak-password':
+          setError('Your password must be at least 6 characters long.');
+          break;
+        case 'auth/email-already-in-use':
+          setError('This email address is already registered.');
+          break;
+        case 'auth/invalid-email':
+          setError('Please enter a valid email address.');
+          break;
+        default:
+          setError('Failed to create an account. Please try again.');
+          break;
+      }
     }
   };
 
@@ -53,21 +66,20 @@ const Register = () => {
         <form onSubmit={handleRegister} className={styles.form}>
           <div className={styles.inputGroup}>
             <Label htmlFor="name">Name</Label>
-            <Input id="name" type="text" placeholder="Your Name" value={name} onChange={(e) => setName(e.target.value)} required/>
+            <Input id="name" type="text" placeholder="Your Name" value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
           <div className={styles.inputGroup}>
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="name@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required/>
+            <Input id="email" type="email" placeholder="name@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
           <div className={styles.inputGroup}>
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" placeholder="********" value={password} onChange={(e) => setPassword(e.target.value)} required/>
+            <Input id="password" type="password" placeholder="********" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </div>
-          
           <div className={styles.checkboxWrapper}>
-            <input 
-              type="checkbox" 
-              id="agree" 
+            <input
+              type="checkbox"
+              id="agree"
               checked={agreed}
               onChange={(e) => setAgreed(e.target.checked)}
             />
@@ -76,7 +88,6 @@ const Register = () => {
               <Link to="/terms" target="_blank" className={styles.link}>Terms & Conditions</Link>
             </Label>
           </div>
-
           {error && <p className={styles.error}>{error}</p>}
           <Button type="submit" className={styles.submitButton} disabled={!agreed}>Create Account</Button>
         </form>

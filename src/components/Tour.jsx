@@ -18,20 +18,23 @@ const Tour = () => {
     {
       target: '#tour-step-2',
       content: 'You can drag and drop tasks between columns to update their status instantly.',
+      disableScrolling: true,
     },
     {
       target: '#tour-step-3',
       content: 'Use these controls to search, filter, and create new tasks.',
+      disableScrolling: true,
     },
     {
       target: '#tour-step-4',
       content: 'Click here to switch between the Kanban board and a compact List View.',
+      disableScrolling: true,
     },
     {
       target: '#tour-step-5',
       content: "Finally, manage your profile, view analytics, and find this tour again from the user menu.",
-      // FINAL FIX: Change placement to 'left' to ensure visibility
       placement: 'left',
+      disableScrolling: true,
     },
   ];
 
