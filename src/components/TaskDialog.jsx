@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { db, auth } from '../lib/firebase';
 import { doc, addDoc, updateDoc, collection, serverTimestamp, getDocs, deleteDoc } from 'firebase/firestore';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/Dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from './ui/Dialog';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Textarea } from './ui/Textarea';
@@ -105,6 +105,10 @@ const TaskDialog = ({ isOpen, onOpenChange, task }) => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{isEditMode ? 'Edit Task' : 'Create New Task'}</DialogTitle>
+          {/* ADD THIS DIALOG DESCRIPTION BACK IN */}
+          <DialogDescription>
+            {isEditMode ? "Make changes to your task here. Click save when you're done." : "Add a new task to your board. Fill in the details below."}
+          </DialogDescription>
         </DialogHeader>
 
         <div className={styles.dialogBody}>
@@ -157,7 +161,7 @@ const TaskDialog = ({ isOpen, onOpenChange, task }) => {
               )}
               <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                {isEditMode ? 'Save Changes' : 'Create Task'}
               </Button>
             </DialogFooter>
           </form>
@@ -168,4 +172,5 @@ const TaskDialog = ({ isOpen, onOpenChange, task }) => {
     </Dialog>
   );
 };
+
 export default TaskDialog;

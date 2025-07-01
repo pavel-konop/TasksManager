@@ -112,17 +112,32 @@ const Dashboard = () => {
     setActiveTask(null);
     const { active, over } = event;
     if (!over) return;
+
     const taskId = active.id;
     const currentTask = tasks.find(t => t.id === taskId);
+    
     let newStatus = over.id;
     if (over.data.current?.sortable) {
       newStatus = over.data.current.sortable.containerId;
     }
-    if (currentTask && currentTask.status !== newStatus) {
-      const taskRef = doc(db, 'tasks', taskId);
-      await updateDoc(taskRef, { status: aewStatus });
-      if (newStatus === 'Done') {
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    
+    // Check if the status is actually changing and is a valid status
+    if (currentTask && currentTask.status !== newStatus && TASK_STATUSES.includes(newStatus)) {
+      try {
+        const taskRef = doc(db, 'tasks', taskId);
+        await updateDoc(taskRef, { status: newStatus });
+        
+        // If task is moved to "Done", celebrate!
+        if (newStatus === 'Done') {
+          confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            zIndex: 10001 // Ensure it's above the tour spotlight
+          });
+        }
+      } catch (error) {
+        console.error("Error updating task status:", error);
       }
     }
   };
