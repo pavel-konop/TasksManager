@@ -13,8 +13,8 @@ export const useTasks = () => {
       const tasksData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        // Convert Firestore Timestamp to JS Date if it exists
-        dueDate: doc.data().dueDate?.toDate ? doc.data().dueDate.toDate().toLocaleDateString() : doc.data().dueDate,
+        // CORRECTED: Provide a real Date object or null
+        dueDate: doc.data().dueDate?.toDate ? doc.data().dueDate.toDate() : null,
         createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : new Date(),
       }));
       setTasks(tasksData);
@@ -24,7 +24,6 @@ export const useTasks = () => {
       setLoading(false);
     });
 
-    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 

@@ -54,3 +54,16 @@
     align-items: flex-start;
   }
 }
+
+.viewSwitcher {
+  display: flex;
+  background-color: var(--secondary);
+  padding: 0.25rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.viewSwitcher > button {
+  padding: 0.25rem 0.5rem;
+  height: auto;
+}

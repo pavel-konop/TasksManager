@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { DndContext, PointerSensor, useSensor, useSensors, DragOverlay } from '@dnd-kit/core';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -9,8 +9,9 @@ import StatusColumn from '../components/StatusColumn';
 import TaskDialog from '../components/TaskDialog';
 import TaskCard from '../components/TaskCard';
 import FilterControls from '../components/FilterControls';
+import ListView from '../components/ListView'; // Import the new component
 import { Button } from '../components/ui/Button';
-import { FiPlus } from 'react-icons/fi';
+import { FiPlus, FiGrid, FiList } from 'react-icons/fi';
 import styles from './Dashboard.module.css';
 
 const Dashboard = () => {
@@ -19,23 +20,9 @@ const Dashboard = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [activeTask, setActiveTask] = useState(null);
 
-  const { searchTerm, assigneeFilter, priorityFilter, statusFilter, clearFilters } = useFilterStore();
+  const { searchTerm, assigneeFilter, priorityFilter, statusFilter, viewMode, setViewMode } = useFilterStore();
 
-  // On mount, clear status filter if it was set by another page
-  useEffect(() => {
-    return () => {
-      // When leaving the dashboard, we can decide if we want to clear filters.
-      // For now, we'll leave them, but could call clearFilters() here.
-    };
-  }, []);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    })
-  );
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
   const filteredTasks = useMemo(() => {
     return tasks.filter(task => {
@@ -47,9 +34,7 @@ const Dashboard = () => {
     });
   }, [tasks, searchTerm, assigneeFilter, priorityFilter, statusFilter]);
 
-  const getTasksByStatus = (status) => {
-    return filteredTasks.filter(task => task.status === status);
-  };
+  const getTasksByStatus = (status) => filteredTasks.filter(task => task.status === status);
 
   const handleAddTask = () => {
     setSelectedTask(null);
@@ -62,9 +47,7 @@ const Dashboard = () => {
   };
 
   const handleDragStart = (event) => {
-    const { active } = event;
-    const task = tasks.find(t => t.id === active.id);
-    setActiveTask(task);
+    setActiveTask(tasks.find(t => t.id === event.active.id));
   };
 
   const handleDragEnd = async (event) => {
@@ -74,9 +57,7 @@ const Dashboard = () => {
     const taskId = active.id;
     const currentTask = tasks.find(t => t.id === taskId);
     let newStatus = over.id;
-    if (over.data.current?.sortable) {
-      newStatus = over.data.current.sortable.containerId;
-    }
+    if (over.data.current?.sortable) newStatus = over.data.current.sortable.containerId;
     if (currentTask && currentTask.status !== newStatus) {
       const taskRef = doc(db, 'tasks', taskId);
       await updateDoc(taskRef, { status: newStatus });
@@ -91,36 +72,38 @@ const Dashboard = () => {
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className={styles.dashboard}>
         <header className={styles.header}>
-          <h1 className={styles.title}>Kanban Board</h1>
+          <h1 className={styles.title}>Dashboard</h1>
           <div className={styles.actions}>
             <FilterControls />
+            <div className={styles.viewSwitcher}>
+              <Button variant={viewMode === 'board' ? 'default' : 'ghost'} onClick={() => setViewMode('board')} size="small"><FiGrid /></Button>
+              <Button variant={viewMode === 'list' ? 'default' : 'ghost'} onClick={() => setViewMode('list')} size="small"><FiList /></Button>
+            </div>
             <Button onClick={handleAddTask}>
               <FiPlus style={{ marginRight: '0.5rem' }} />
               Create Task
             </Button>
           </div>
         </header>
-        <div className={styles.board}>
-          {TASK_STATUSES.map(status => (
-            <StatusColumn
-              key={status}
-              status={status}
-              tasks={getTasksByStatus(status)}
-              onEditTask={handleEditTask}
-            />
-          ))}
-        </div>
+
+        {viewMode === 'board' ? (
+          <div className={styles.board}>
+            {TASK_STATUSES.map(status => (
+              <StatusColumn
+                key={status}
+                status={status}
+                tasks={getTasksByStatus(status)}
+                onEditTask={handleEditTask}
+              />
+            ))}
+          </div>
+        ) : (
+          <ListView tasks={filteredTasks} onEditTask={handleEditTask} />
+        )}
+
       </div>
-
-      <DragOverlay>
-        {activeTask ? <TaskCard task={activeTask} /> : null}
-      </DragOverlay>
-
-      <TaskDialog
-        isOpen={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        task={selectedTask}
-      />
+      <DragOverlay>{activeTask ? <TaskCard task={activeTask} /> : null}</DragOverlay>
+      <TaskDialog isOpen={isDialogOpen} onOpenChange={setIsDialogOpen} task={selectedTask} />
     </DndContext>
   );
 };

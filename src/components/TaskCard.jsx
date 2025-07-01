@@ -2,6 +2,7 @@ import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { FiClock, FiArrowUp, FiArrowRight, FiArrowDown } from 'react-icons/fi';
+import { format } from 'date-fns'; // Import date-fns
 import styles from './TaskCard.module.css';
 
 const priorityIcons = {
@@ -52,7 +53,8 @@ const TaskCard = ({ task, onEdit }) => {
           {dueDate && (
             <div className={styles.dueDate}>
               <FiClock />
-              <span>{dueDate}</span>
+              {/* CORRECTED: Format the date object */}
+              <span>{format(dueDate, 'MMM d')}</span>
             </div>
           )}
           {assignee?.avatar && (

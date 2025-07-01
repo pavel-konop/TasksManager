@@ -1,0 +1,72 @@
+.container {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th, .table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.875rem;
+}
+
+.table th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  background-color: var(--secondary);
+}
+
+.table tbody tr {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.table tbody tr:hover {
+  background-color: var(--accent);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.assignee {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.assignee img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.status[data-status="to-do"] { background-color: var(--status-todo-bg); color: var(--status-todo-fg); }
+.status[data-status="in-progress"] { background-color: var(--status-inprogress-bg); color: var(--status-inprogress-fg); }
+.status[data-status="in-review"] { background-color: var(--status-inreview-bg); color: var(--status-inreview-fg); }
+.status[data-status="done"] { background-color: var(--status-done-bg); color: var(--status-done-fg); }
+
+.emptyState {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+  padding: 4rem;
+  color: var(--muted-foreground);
+}
