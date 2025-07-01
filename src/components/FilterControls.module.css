@@ -1,19 +1,75 @@
-.container {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.searchInput {
-    max-width: 250px;
-}
-
+/* --- SHARED STYLES --- */
 .select {
   display: flex;
-  height: 2.5rem;
+  height: 2.25rem;
   border-radius: var(--radius);
   border: 1px solid var(--input);
   background-color: var(--background);
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
+}
+
+/* --- DESKTOP STYLES --- */
+.desktopContainer {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.searchInput {
+    max-width: 200px;
+}
+
+/* --- MOBILE STYLES --- */
+.mobileContainer {
+    display: none; /* Hidden by default */
+}
+
+.drawerContent {
+    top: 0;
+    right: 0;
+    left: auto;
+    transform: none;
+    height: 100%;
+    width: 80%;
+    max-width: 350px;
+    border-radius: 0;
+    border-left: 1px solid var(--border);
+    animation: content-show-right 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mobileForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.mobileForm .formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.mobileForm .formGroup > label {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+
+/* --- RESPONSIVE MEDIA QUERY --- */
+/* On screens 1024px or less, hide desktop filters and show mobile button */
+@media (max-width: 1024px) {
+    .desktopContainer {
+        display: none;
+    }
+    .mobileContainer {
+        display: block;
+    }
+}
+
+/* --- ANIMATIONS --- */
+@keyframes content-show-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }

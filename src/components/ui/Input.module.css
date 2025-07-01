@@ -1,6 +1,6 @@
 .input {
   display: flex;
-  height: 2.5rem;
+  height: 2.25rem; /* Changed from 2.5rem to 2.25rem to match buttons */
   width: 100%;
   border-radius: var(--radius);
   border: 1px solid var(--input);

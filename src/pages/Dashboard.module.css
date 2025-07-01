@@ -16,11 +16,13 @@
   gap: 1.5rem; /* Increased gap */
 }
 
+/* Find the existing .actions style and replace it with this */
 .actions {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  flex-wrap: wrap; /* Allow actions to wrap on small screens */
+  flex-wrap: wrap; /* This allows items to wrap onto the next line if needed */
+  justify-content: flex-start; /* Aligns items to the start */
 }
 
 .title {
